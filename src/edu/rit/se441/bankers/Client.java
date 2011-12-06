@@ -12,9 +12,9 @@ public class Client extends Thread {
     private String name;
     private Banker banker;
     private int nUnits;
-    private int nRequests;
-    private long minSleepMillis;
-    private long maxSleepMillis;
+    private final int nRequests;
+    private final long minSleepMillis;
+    private final long maxSleepMillis;
 
     public Client(String name, Banker banker, int nUnits, int nRequests, long minSleepMillis, long maxSleepMillis) {
         super(name);
@@ -39,7 +39,7 @@ public class Client extends Thread {
      *
      *   If requesting units,
      *      choose random number from 1 through banker.remaining()
-     *      and issue a request to the bankerr for that many units.
+     *      and issue a request to the banker for that many units.
      *   If releasing units,
      *      choose random number from 1 through banker.allocated()
      *      and issue a request to the banker for that many units.
@@ -50,6 +50,21 @@ public class Client extends Thread {
      *      this will terminate the client thread.
      */
     public void run() {
+
+        for(int i=0;i<nRequests;i++) {
+
+            if(banker.remaining() == 0) {
+                final int requestNum = 1 + (int)(Math.random() * (banker.remaining())) ;      //check this
+                banker.release(0);
+            } else if(banker.allocated() == 0) {
+                banker.request(0);
+            } else {
+                //random
+            }
+
+
+
+        }
 
     }
 }

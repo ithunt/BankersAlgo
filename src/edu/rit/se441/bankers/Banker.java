@@ -6,11 +6,14 @@ package edu.rit.se441.bankers;
  */
 public class Banker {
 
+    private final int nUnits;
+
     /**
      * Initialize the new Banker object to manage nUnits of resource
      * @param nUnits
      */
     public Banker(int nUnits) {
+        this.nUnits = nUnits;
 
     }
 
@@ -52,6 +55,7 @@ public class Banker {
      * @param nUnits
      */
     public void request(int nUnits) {
+
 
     }
 
