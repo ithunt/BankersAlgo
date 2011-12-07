@@ -5,6 +5,7 @@ package edu.rit.se441.bankers;
  * multiple Client objects content for the pool of resources by calling methods in a shared Banker object.
  *
  * @author ian hunt
+ * @author Yi Jiang
  * @date 12.06.11
  */
 public class Client extends Thread {
@@ -51,20 +52,33 @@ public class Client extends Thread {
      */
     public void run() {
 
+        int releaseNum = 0;
+        int requestNum = 0;
+        int action = 0;
+
         for(int i=0;i<nRequests;i++) {
 
             if(banker.remaining() == 0) {
-                final int requestNum = 1 + (int)(Math.random() * (banker.remaining())) ;      //check this
-                banker.release(0);
+                releaseNum = 1 + (int)(Math.random() * banker.allocated());
+                banker.release(releaseNum);
             } else if(banker.allocated() == 0) {
-                banker.request(0);
+                requestNum = 1 + (int)(Math.random() * banker.remaining());
+                banker.request(requestNum);
             } else {
-                //random
+                action = (int)(Math.random() * 2);
+                if (action == 0){
+                    releaseNum = 1 + (int)(Math.random() * banker.allocated());
+                    banker.release(releaseNum);
+                } else {
+                    requestNum = 1 + (int)(Math.random() * banker.remaining());
+                    banker.request(requestNum);
+                }
             }
 
-
-
+            int sleepDuration = minSleepMillis + (int)(Math.random() * (maxSleepMillis - minSleepMillis);
+            Thread.sleep(sleepDuration);
         }
 
+        banker.release(banker.allocated());
     }
 }
