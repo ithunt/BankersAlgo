@@ -1,6 +1,7 @@
 package edu.rit.se441.bankers;
 
 import net.jcip.annotations.GuardedBy;
+import sun.tools.tree.ThisExpression;
 
 import java.util.HashMap;
 
@@ -11,7 +12,9 @@ import java.util.HashMap;
 public class Banker {
 
     private final int totalResources;
-
+    
+    @GuardedBy("this")
+    private volatile int allocatedResources;
     @GuardedBy("this")
     private final HashMap<String, Integer> claims;
     @GuardedBy("this")
@@ -44,10 +47,11 @@ public class Banker {
      */
     public void setClaim(int nUnits) {
 
-         if( claims.keySet().contains(Thread.currentThread().getName()) ||
+         if( null != claims.get(Thread.currentThread().getName()) ||
                 nUnits < 1 ||
                 nUnits > this.totalResources ) {
-
+             if( nUnits > this.totalResources)
+                System.err.println(Thread.currentThread().getName() + " attempted to claim more than available resources. Exiting");
              System.exit(1);
          }
 
@@ -79,10 +83,44 @@ public class Banker {
      *
      * @param nUnits
      */
-    public void request(int nUnits) {
+    public synchronized void request(int nUnits) {
 
+        final String currentThreadName = Thread.currentThread().getName();
+        final int remaining = claims.get(currentThreadName) - allocations.get(currentThreadName);
 
+        if(     null == claims.get(currentThreadName)   ||
+                nUnits < 1  ||
+                nUnits > ( remaining ))
+        {
+            if( nUnits > (remaining))
+                System.err.println(currentThreadName + " requested " + nUnits + ". Only " +
+                    remaining + " more may be claimed. Exiting ");
+            System.exit(1);
+        }
 
+        
+        System.out.println(currentThreadName + " requests " + nUnits + " units.");
+        
+        //do work
+        
+        boolean safe = true;
+        if( safe ) {        
+            System.out.println(currentThreadName + " has " + nUnits + " units allocated");
+        
+            //update banker state
+            return;
+        } else {
+            while( !safe ) {
+                
+                
+                safe = true;
+            }
+        }
+
+        
+        //if not
+        
+       
 
     }
 
@@ -100,7 +138,29 @@ public class Banker {
      *
      * @param nUnits
      */
-    public void release(int nUnits) {
+    public synchronized void release(int nUnits) {
+        
+        final String currentThreadName = Thread.currentThread().getName();
+        if(     null == claims.get(currentThreadName) ||
+                nUnits < 1 ||
+                nUnits > allocations.get(currentThreadName) ) 
+        {
+            System.exit(1);
+        }
+        
+        System.out.println(currentThreadName + " releases " + nUnits + " units.");
+        
+        final int newAllocation = allocations.get(currentThreadName) - nUnits;
+
+        if (0 == newAllocation) {
+            allocations.remove(currentThreadName);
+        } else {
+            allocations.put(currentThreadName, newAllocation);
+        }
+
+        
+        
+        
 
     }
 

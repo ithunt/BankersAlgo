@@ -62,8 +62,6 @@ public class Client extends Thread {
                 //random
             }
 
-
-
         }
 
     }
