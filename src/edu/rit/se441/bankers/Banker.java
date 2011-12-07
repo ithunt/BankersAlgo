@@ -3,6 +3,7 @@ package edu.rit.se441.bankers;
 import net.jcip.annotations.GuardedBy;
 import sun.tools.tree.ThisExpression;
 
+import javax.swing.plaf.metal.MetalBorders;
 import java.util.HashMap;
 
 /**
@@ -102,6 +103,7 @@ public class Banker {
         System.out.println(currentThreadName + " requests " + nUnits + " units.");
         
         //do work
+        //note, should claims with allocations of zero be removed from allocations?
         
         boolean safe = true;
         if( safe ) {        
@@ -170,7 +172,7 @@ public class Banker {
      * @return
      */
     public int allocated() {
-        return 0;
+        return allocations.get(Thread.currentThread().getName());
     }
 
     /**
@@ -179,7 +181,7 @@ public class Banker {
      * @return the maximum number of units current thread can request
      */
     public int remaining() {
-        return 0;
+        return (claims.get(Thread.currentThread().getName()) - allocations.get(Thread.currentThread().getName()));
     }
 
 }
