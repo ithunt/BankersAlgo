@@ -6,7 +6,11 @@ package edu.rit.se441.bankers;
  */
 public class Driver {
 
+    final private static int BANKER_RESOURCES = 5;
+
     public static void main() {
+
+        Banker b = new Banker(BANKER_RESOURCES);
 
         //create banker
         //create some clients

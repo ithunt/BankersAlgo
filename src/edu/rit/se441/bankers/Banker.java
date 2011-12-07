@@ -1,19 +1,30 @@
 package edu.rit.se441.bankers;
 
+import net.jcip.annotations.GuardedBy;
+
+import java.util.HashMap;
+
 /**
  * @author ian hunt
  * @date 12.06.11
  */
 public class Banker {
 
-    private final int nUnits;
+    private final int totalResources;
+
+    @GuardedBy("this")
+    private final HashMap<String, Integer> claims;
+    @GuardedBy("this")
+    private final HashMap<String, Integer> allocations;
 
     /**
      * Initialize the new Banker object to manage nUnits of resource
      * @param nUnits
      */
     public Banker(int nUnits) {
-        this.nUnits = nUnits;
+        this.totalResources = nUnits;
+        claims = new HashMap<String, Integer>();
+        allocations = new HashMap<String, Integer>();
 
     }
 
@@ -24,13 +35,27 @@ public class Banker {
      *   The method calls System.exit(1) if
      *      (a) the thread already has a claim registered,
      *      (b) nUnits is not strictly positive, or
-     *      (c) nUnits exceeds the number of resources in the system. Print a message of the form:
+     *      (c) nUnits exceeds the number of resources in the system.
+     *   Print a message of the form:
      *             Thread name sets a claim for nUnits units.
      *           where name is the thread name (via Thread.currentThread().getName())
      *           and nUnits is the number of resources claimed and return.
      * @param nUnits
      */
     public void setClaim(int nUnits) {
+
+         if( claims.keySet().contains(Thread.currentThread().getName()) ||
+                nUnits < 1 ||
+                nUnits > this.totalResources ) {
+
+             System.exit(1);
+         }
+
+        System.out.println(Thread.currentThread().getName() + "  sets a claim for " + nUnits + " units." );
+
+        synchronized (this) {
+            claims.put( Thread.currentThread().getName() , new Integer(nUnits) );
+        }
 
     }
 
@@ -55,6 +80,8 @@ public class Banker {
      * @param nUnits
      */
     public void request(int nUnits) {
+
+
 
 
     }
