@@ -111,6 +111,7 @@ public class Banker {
         
         boolean safe = false;
         int remainingBankResource = 0;
+        int virtualRemainingResource;
         
         while(!safe) {            
             remainingBankResource = totalResources - allocatedResources;
@@ -121,8 +122,13 @@ public class Banker {
                 } catch (Exception e) {}
                 remainingBankResource = totalResources - allocatedResources;
             }
+            virtualRemainingResource = remainingBankResource;                
+            Set<String> threadList = claims.keySet();
+            String[] threadListArray;
+            threadList.toArray(threadListArray);
             for (int i = 0; i < claims.size(); i++) {
-                int remainingBankResourceAfterAllocation = remainingBankResource + allocations.get(Thread.currentThread().getName());              
+                String threadName = threadListArray[i];
+                virtualRemainingResource += allocations.get(threadName); 
             }
         }
          
