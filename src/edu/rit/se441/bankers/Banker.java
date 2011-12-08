@@ -122,13 +122,17 @@ public class Banker {
                 } catch (Exception e) {}
                 remainingBankResource = totalResources - allocatedResources;
             }
-            virtualRemainingResource = remainingBankResource;                
+            virtualRemainingResource = remainingBankResource;
+            virtualRemainingResource += allocations.get(currentThreadName); 
             Set<String> threadList = claims.keySet();
             String[] threadListArray;
             threadList.toArray(threadListArray);
             for (int i = 0; i < claims.size(); i++) {
                 String threadName = threadListArray[i];
-                virtualRemainingResource += allocations.get(threadName); 
+                if (!threadName.equals(currentThreadName)) {
+                    virtualRemainingResource += allocations.get(threadName); 
+                    
+                }
             }
         }
          
