@@ -8,6 +8,7 @@ import java.util.HashMap;
 
 /**
  * @author ian hunt
+ * @author Yi Jiang
  * @date 12.06.11
  */
 public class Banker {
@@ -87,17 +88,20 @@ public class Banker {
     public synchronized void request(int nUnits) {
 
         final String currentThreadName = Thread.currentThread().getName();
-        final int remaining = claims.get(currentThreadName) - allocations.get(currentThreadName);
+        final int remaining;
 
-        if(     null == claims.get(currentThreadName)   ||
-                nUnits < 1  ||
-                nUnits > ( remaining ))
+        if(null == claims.get(currentThreadName) || nUnits < 1)
         {
-            if( nUnits > (remaining))
-                System.err.println(currentThreadName + " requested " + nUnits + ". Only " +
-                    remaining + " more may be claimed. Exiting ");
             System.exit(1);
         }
+        
+        remaining = claims.get(currentThreadName) - allocations.get(currentThreadName);
+        
+         if (nUnits > remaining) { 
+             System.err.println(currentThreadName + " requested " + nUnits + ". Only " +
+                    remaining + " more may be claimed. Exiting ");
+             system.exit(1);
+         }
 
         
         System.out.println(currentThreadName + " requests " + nUnits + " units.");
@@ -105,25 +109,26 @@ public class Banker {
         //do work
         //note, should claims with allocations of zero be removed from allocations?
         
-        boolean safe = true;
-        if( safe ) {        
-            System.out.println(currentThreadName + " has " + nUnits + " units allocated");
+        boolean safe = false;
+        int remainingBankResource = 0;
         
-            //update banker state
-            return;
-        } else {
-            while( !safe ) {
-                
-                
-                safe = true;
+        while(!safe) {            
+            remainingBankResource = totalResources - allocatedResources;
+            while (nUnits > remainingBankResource) {                      
+                try {
+                    wait();
+                    System.out.println(currentThreadName + "awakened in request");
+                } catch (Exception e) {}
+                remainingBankResource = totalResources - allocatedResources;
+            }
+            for (int i = 0; i < claims.size(); i++) {
+                int remainingBankResourceAfterAllocation = remainingBankResource + allocations.get(Thread.currentThread().getName());              
             }
         }
-
-        
-        //if not
-        
-       
-
+         
+        final int originallyAllocated = allocations.get(currentThreadName);
+        allocations.put(Thread.currentThread().getName(), originallyAllocated + nUnits);
+        System.out.println(currentThreadName + " has " + nUnits + " units allocated");
     }
 
     /**
@@ -159,11 +164,6 @@ public class Banker {
         } else {
             allocations.put(currentThreadName, newAllocation);
         }
-
-        
-        
-        
-
     }
 
     /**
