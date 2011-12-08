@@ -126,17 +126,30 @@ public class Banker {
             virtualRemainingResource += allocations.get(currentThreadName); 
             ArrayList<String> threadList = claims.keySet();
             for (int i = 0; i < claims.size(); i++) {
-                for (int j = 0; j < threadList.size(); j++) {
+                int numberThreadsOutstanding = threadList.size();
+                for (int j = 0; j < numberThreadsOutstanding; j++) {
                     String threadName = threadList.get(j);
                     if (!threadName.equals(currentThreadName)) {
                         if (virtualRemainingResource >= (claims.get(threadName) - allocations.get(threadName)) {
                             virtualRemainingResource += allocations.get(threadName);
                             threadList.remove(threadName);
+                            break;
                         }
-                        virtualRemainingResource += allocations.get(threadName); 
-                        
                     }
                 }
+                if (threadList.size() == 0) {
+                    safe = true;
+                    break;
+                }
+            }
+            if (threadList.size() == 0) {                
+                safe = true;
+            }
+            if (!safe) {
+                try {
+                    wait();
+                    System.out.println(currentThreadName + "awakened in request");
+                } catch (Exception e) {}
             }
         }
          
